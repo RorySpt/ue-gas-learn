@@ -12,5 +12,5 @@
 ## 使用说明
 开发环境：[<img height="32" alt="虚幻引擎徽标" src="https://cms-assets.unrealengine.com/AVzjeqAbLRKi3W5jq0CAvz/cmb81xhrq3wmn07o5xiqxc9fk">
 UE5.6](https://dev.epicgames.com/documentation/zh-cn/unreal-engine/unreal-engine-5-6-documentation) 、 [<img src="https://resources.jetbrains.com/storage/logos/web/rider/rider.svg" height="32" alt="Rider" />
-rider 2025.1.4](https://www.jetbrains.com/rider/download/?section=windows)
+Rider](https://www.jetbrains.com/rider/download/?section=windows)
 
