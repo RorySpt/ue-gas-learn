@@ -7,7 +7,7 @@
 
 好用的文档阅读工具：[<img height="32" src="https://github.com/vnotex/vnote/raw/master/pics/vnote.png"/>vnote](https://github.com/vnotex/vnote)
 
-当前进度：[4.5.4 游戏效果修改器](https://github.com/flyingSnow-hu/GASDocumentationCN?tab=readme-ov-file#concepts-ge-mods)
+当前进度：[4.8.3 客户端GameplayCue](https://github.com/BillEliot/GASDocumentation_Chinese#483-%E5%AE%A2%E6%88%B7%E7%AB%AFgameplaycue)
 
 笔记：[Xmind笔记](./Doc/GAS.xmind)、[<img src="https://assets.mubu.com/favicon.ico" height=32/>在线笔记](https://www.mubu.com/doc/6xyykJWa7VY#m)
 <!-- https://cms-assets.unrealengine.com/AVzjeqAbLRKi3W5jq0CAvz/cmb81xhrx3tsh07mzz3amnbyl --->
