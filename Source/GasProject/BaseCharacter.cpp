@@ -26,6 +26,8 @@ void ABaseCharacter::BeginPlay()
 		AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(BaseAbilitySet->GetHealthAttribute()).AddUObject(this, &ABaseCharacter::OnHealthChangedNative);
 		AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(BaseAbilitySet->GetStaminaAttribute()).AddUObject(this, &ABaseCharacter::OnStaminaChangedNative);
 	}
+
+	//AbilitySystemComponent->ApplyGameplayEffectToSelf()
 }
 
 // Called every frame
@@ -79,4 +81,75 @@ void ABaseCharacter::OnHealthChangedNative(const FOnAttributeChangeData& Data)
 void ABaseCharacter::OnStaminaChangedNative(const FOnAttributeChangeData& Data)
 {
 	OnStaminaChanged(Data.OldValue, Data.NewValue);
+}
+
+void ABaseCharacter::InitializeAbilityMulti(TArray<TSubclassOf<UGameplayAbility>> AbilitiesToAcquire,
+	int32 AbilityLevel)
+{
+	for (TSubclassOf<UGameplayAbility> AbilityToAcquire : AbilitiesToAcquire)
+	{
+		InitializeAbility(AbilityToAcquire, AbilityLevel);
+	}
+}
+
+void ABaseCharacter::RemoveAbilityWithTag(FGameplayTagContainer TagContainer)
+{
+	TArray<FGameplayAbilitySpec*> MatchingAbilities;
+
+	AbilitySystemComponent->GetActivatableGameplayAbilitySpecsByAllMatchingTags(TagContainer, MatchingAbilities);
+
+	for (FGameplayAbilitySpec* AbilitySpec : MatchingAbilities)
+	{
+		AbilitySystemComponent->ClearAbility(AbilitySpec->Handle);
+	}
+}
+
+void ABaseCharacter::ChangeAbilityLevelWithTags(FGameplayTagContainer TagContainer, int NewLevel)
+{
+	TArray<FGameplayAbilitySpec*> MatchingAbilities;
+	AbilitySystemComponent->GetActivatableGameplayAbilitySpecsByAllMatchingTags(TagContainer, MatchingAbilities);
+
+	for (FGameplayAbilitySpec* AbilitySpec : MatchingAbilities)
+	{
+		AbilitySpec->Level = NewLevel;
+		// 将其标记为Dirty以同步到所属(Owning)客户端.
+		AbilitySystemComponent->MarkAbilitySpecDirty(*AbilitySpec);
+	}
+}
+
+void ABaseCharacter::CancelAbilityWithTag(FGameplayTagContainer WithTags, FGameplayTagContainer WithoutTags)
+{
+	AbilitySystemComponent->CancelAbilities(&WithTags, &WithoutTags);
+}
+
+void ABaseCharacter::AddLooseGameplayTag(FGameplayTag TagToAdd)
+{
+	GetAbilitySystemComponent()->AddLooseGameplayTag(TagToAdd);
+	GetAbilitySystemComponent()->SetLooseGameplayTagCount(TagToAdd,1);
+}
+
+void ABaseCharacter::RemoveLooseGameplayTag(FGameplayTag TagToRemove)
+{
+	GetAbilitySystemComponent()->RemoveLooseGameplayTag(TagToRemove);
+}
+
+void ABaseCharacter::ApplyGEToTargetData(const FGameplayEffectSpecHandle& GESpec,
+	const FGameplayAbilityTargetDataHandle& TargetData)
+{
+	for (auto Data: TargetData.Data)
+	{
+		Data->ApplyGameplayEffectSpec(*GESpec.Data);
+	}
+}
+
+void ABaseCharacter::SetHealthValues(float NewHealth, float NewMaxHealth)
+{
+	GetAbilitySystemComponent()->ApplyModToAttribute(BaseAbilitySet->GetHealthAttribute(), EGameplayModOp::Override, NewHealth);
+	GetAbilitySystemComponent()->ApplyModToAttribute(BaseAbilitySet->GetMaxHealthAttribute(), EGameplayModOp::Override, NewMaxHealth);
+}
+
+void ABaseCharacter::SetStaminaValues(float NewStamina, float NewMaxStamina)
+{
+	GetAbilitySystemComponent()->ApplyModToAttribute(BaseAbilitySet->GetStaminaAttribute(), EGameplayModOp::Override, NewStamina);
+	GetAbilitySystemComponent()->ApplyModToAttribute(BaseAbilitySet->GetMaxStaminaAttribute(), EGameplayModOp::Override, NewMaxStamina);
 }

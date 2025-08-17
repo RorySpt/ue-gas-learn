@@ -12,8 +12,9 @@
 笔记：[Xmind笔记](./Doc/GAS.xmind)、[<img src="https://assets.mubu.com/favicon.ico" height=32/>在线笔记](https://www.mubu.com/doc/1IaWT9cfQHY#m)
 <!-- https://cms-assets.unrealengine.com/AVzjeqAbLRKi3W5jq0CAvz/cmb81xhrx3tsh07mzz3amnbyl --->
 
+开发计划：[点击查看](https://github.com/users/RorySpt/projects/1)
+
 ## 使用说明
 开发环境：[<img height="32" alt="虚幻引擎徽标" src="https://cms-assets.unrealengine.com/AVzjeqAbLRKi3W5jq0CAvz/cmb81xhrq3wmn07o5xiqxc9fk">
 UE5.6](https://dev.epicgames.com/documentation/zh-cn/unreal-engine/unreal-engine-5-6-documentation) 、 [<img src="https://resources.jetbrains.com/storage/logos/web/rider/rider.svg" height="32" alt="Rider" />
 rider 2025.1.4](https://www.jetbrains.com/rider/download/?section=windows)
-
