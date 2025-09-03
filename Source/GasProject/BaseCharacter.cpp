@@ -3,10 +3,12 @@
 
 #include "BaseCharacter.h"
 #include "BaseAttributeSet.h"
+#include "BaseCharactorMovementComponent.h"
 
 
 // Sets default values
 ABaseCharacter::ABaseCharacter()
+	: Super(FObjectInitializer::Get().SetDefaultSubobjectClass<UBaseCharactorMovementComponent>(ACharacter::CharacterMovementComponentName))
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -25,10 +27,40 @@ void ABaseCharacter::BeginPlay()
 
 		AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(BaseAbilitySet->GetHealthAttribute()).AddUObject(this, &ABaseCharacter::OnHealthChangedNative);
 		AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(BaseAbilitySet->GetStaminaAttribute()).AddUObject(this, &ABaseCharacter::OnStaminaChangedNative);
+
+
+		AddStartupEffects();
+
+		AddDefaultAbilities();
 	}
 
 	//AbilitySystemComponent->ApplyGameplayEffectToSelf()
 }
+
+void ABaseCharacter::AddStartupEffects()
+{
+	auto EffectContextHandle = AbilitySystemComponent->MakeEffectContext();
+	EffectContextHandle.AddSourceObject(this);
+
+	for (auto& GameplayEffect : StartupEffects)
+	{
+		auto NewHandle = AbilitySystemComponent->MakeOutgoingSpec(GameplayEffect, 0, EffectContextHandle);
+
+		if (NewHandle.IsValid())
+		{
+			AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*NewHandle.Data);
+		}
+	}
+}
+
+void ABaseCharacter::AddDefaultAbilities()
+{
+	for (auto Ability: CharacterAbilities)
+	{
+		AbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(Ability));
+	}
+}
+
 
 // Called every frame
 void ABaseCharacter::Tick(float DeltaTime)
@@ -67,10 +99,25 @@ void ABaseCharacter::GetHealthValues(float& Health, float& MaxHealth) const
 	MaxHealth = BaseAbilitySet->GetMaxHealth();
 }
 
+float ABaseCharacter::GetHealthRegenRate() const
+{
+	return BaseAbilitySet->GetHealthRegenRate();
+}
+
 void ABaseCharacter::GetStaminaValues(float& Stamina, float& MaxStamina) const
 {
 	Stamina = BaseAbilitySet->GetStamina();
 	MaxStamina = BaseAbilitySet->GetMaxStamina();
+}
+
+float ABaseCharacter::GetStaminaRegenRate() const
+{
+	return BaseAbilitySet->GetStaminaRegenRate();
+}
+
+float ABaseCharacter::GetMoveSpeed()
+{
+	return BaseAbilitySet->GetMoveSpeed();
 }
 
 void ABaseCharacter::OnHealthChangedNative(const FOnAttributeChangeData& Data)
@@ -83,8 +130,15 @@ void ABaseCharacter::OnStaminaChangedNative(const FOnAttributeChangeData& Data)
 	OnStaminaChanged(Data.OldValue, Data.NewValue);
 }
 
+bool ABaseCharacter::IsAlive() const
+{
+	float Health; float MaxHealth;
+	GetHealthValues(Health, MaxHealth);
+	return Health > 0;
+}
+
 void ABaseCharacter::InitializeAbilityMulti(TArray<TSubclassOf<UGameplayAbility>> AbilitiesToAcquire,
-	int32 AbilityLevel)
+                                            int32 AbilityLevel)
 {
 	for (TSubclassOf<UGameplayAbility> AbilityToAcquire : AbilitiesToAcquire)
 	{
@@ -152,4 +206,38 @@ void ABaseCharacter::SetStaminaValues(float NewStamina, float NewMaxStamina)
 {
 	GetAbilitySystemComponent()->ApplyModToAttribute(BaseAbilitySet->GetStaminaAttribute(), EGameplayModOp::Override, NewStamina);
 	GetAbilitySystemComponent()->ApplyModToAttribute(BaseAbilitySet->GetMaxStaminaAttribute(), EGameplayModOp::Override, NewMaxStamina);
+}
+
+bool ABaseCharacter::ActivateAbility(FGameplayTag Tag, bool bAllowRemoteActivation)
+{
+	return GetAbilitySystemComponent()->TryActivateAbilitiesByTag(FGameplayTagContainer{Tag}, bAllowRemoteActivation);
+}
+
+bool ABaseCharacter::DeactivateAbility(FGameplayTag Tag)
+{
+	TArray<FGameplayAbilitySpec*> AbilitiesToActivatePtrs;
+	GetAbilitySystemComponent()->GetActivatableGameplayAbilitySpecsByAllMatchingTags(FGameplayTagContainer(Tag), AbilitiesToActivatePtrs);
+	if (AbilitiesToActivatePtrs.Num() < 1)
+	{
+		return false;
+	}
+
+	// Convert from pointers (which can be reallocated, since they point to internal data) to copies of that data
+	TArray<FGameplayAbilitySpec> AbilitiesToActivate;
+	AbilitiesToActivate.Reserve(AbilitiesToActivatePtrs.Num());
+	Algo::Transform(AbilitiesToActivatePtrs, AbilitiesToActivate, [](FGameplayAbilitySpec* SpecPtr) { return *SpecPtr; });
+
+	bool bSuccess = false;
+	for (const FGameplayAbilitySpec& GameplayAbilitySpec : AbilitiesToActivate)
+	{
+		ensure(IsValid(GameplayAbilitySpec.Ability));
+		if (GameplayAbilitySpec.IsActive())
+		{
+			bSuccess = true;
+			GetAbilitySystemComponent()->CancelAbilityHandle(GameplayAbilitySpec.Handle);
+		}
+			
+	}
+
+	return bSuccess;
 }

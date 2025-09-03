@@ -29,6 +29,10 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	virtual void AddStartupEffects();
+
+	virtual void AddDefaultAbilities();
+	
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -52,9 +56,18 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Base Character")
 	void GetHealthValues(float& Health, float& MaxHealth) const;
 
-	UFUNCTION(BlueprintCallable, Category = "Base Character")
+	UFUNCTION(BlueprintPure, Category = "Base Character")
+	float GetHealthRegenRate() const;
+	
+	UFUNCTION(BlueprintPure, Category = "Base Character")
 	void GetStaminaValues(float& Stamina, float& MaxStamina) const;
 
+	UFUNCTION(BlueprintPure, Category = "Base Character")
+	float GetStaminaRegenRate() const;
+	
+	UFUNCTION(BlueprintCallable, Category = "Base Character")
+	float GetMoveSpeed();
+	
 	void OnHealthChangedNative(const FOnAttributeChangeData& Data);
 	void OnStaminaChangedNative(const FOnAttributeChangeData& Data);
 
@@ -64,7 +77,10 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, Category = "Base Character")
 	void OnStaminaChanged(float OldValue, float NewValue);
 
+	UFUNCTION(BlueprintCallable, Category = "Base Character")
+	virtual bool IsAlive() const;
 
+	
 	// Initialize Abilities Multi
 	UFUNCTION(BlueprintCallable, Category = "Base Character")
 	void InitializeAbilityMulti(TArray<TSubclassOf<UGameplayAbility>> AbilitiesToAcquire, int32 AbilityLevel);
@@ -100,5 +116,16 @@ public:
 	// Modify Stamina Attribute
 	UFUNCTION(BlueprintCallable, Category = "Base Character")
 	void SetStaminaValues(float NewStamina, float NewMaxStamina);
-	
+
+	UFUNCTION(BlueprintCallable, Category = "Base Character|Abilities")
+	bool ActivateAbility(FGameplayTag Tag, bool bAllowRemoteActivation);
+
+	UFUNCTION(BlueprintCallable, Category = "Base Character|Abilities")
+	bool DeactivateAbility(FGameplayTag Tag);
+
+	UPROPERTY(EditDefaultsOnly, Category = "Base Character|Abilities")
+	TArray<TSubclassOf<UGameplayAbility>> CharacterAbilities;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Base Character|Abilities")
+	TArray<TSubclassOf<UGameplayEffect>> StartupEffects;
 };

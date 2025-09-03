@@ -17,7 +17,12 @@ class GASPROJECT_API UBaseAttributeSet : public UAttributeSet
 
 public:
 	UBaseAttributeSet();
-
+	// Attributes for Health
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = BaseAttribute)
+	FGameplayAttributeData MoveSpeed;
+	ATTRIBUTE_ACCESSORS_BASIC(UBaseAttributeSet, MoveSpeed)
+	
+	
 	// Attributes for Health
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = BaseAttribute)
 	FGameplayAttributeData Health;
@@ -27,6 +32,9 @@ public:
 	FGameplayAttributeData MaxHealth;
 	ATTRIBUTE_ACCESSORS_BASIC(UBaseAttributeSet, MaxHealth)
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = BaseAttribute)
+	FGameplayAttributeData HealthRegenRate;
+	ATTRIBUTE_ACCESSORS_BASIC(UBaseAttributeSet, HealthRegenRate)
 
 	// Attributes for Stamina
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = BaseAttribute)
@@ -37,7 +45,9 @@ public:
 	FGameplayAttributeData MaxStamina;
 	ATTRIBUTE_ACCESSORS_BASIC(UBaseAttributeSet, MaxStamina)
 
-
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = BaseAttribute)
+	FGameplayAttributeData StaminaRegenRate;
+	ATTRIBUTE_ACCESSORS_BASIC(UBaseAttributeSet, StaminaRegenRate)
 
 	void PostGameplayEffectExecute(const struct FGameplayEffectModCallbackData& Data) override;
 };
